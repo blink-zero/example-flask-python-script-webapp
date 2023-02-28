@@ -1,6 +1,5 @@
 # example-flask-python-script-webapp
-A simple web application to execute scripts and display the output on the web page.
-
+A simple web application to execute python scripts and display the output on the web page.
 
 # Pre Execution
 
@@ -15,4 +14,5 @@ A simple web application to execute scripts and display the output on the web pa
 
 # Notes
 
+- login page to access
 - Access via <ip>:5000
