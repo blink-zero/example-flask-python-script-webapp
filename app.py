@@ -58,6 +58,27 @@ def button3():
     # Run the button3 script with the input value as a command line argument
     output = subprocess.check_output(['python3', 'script3.py', input_value])
     return render_template('output.html', output=output.decode())
+
+# Define the button4 route
+@app.route('/button4', methods=['POST'])
+def button4():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    # Get the selected system info type from the form
+    system_info_type = request.form['system_info_type']
+
+    # Run the script to get the selected system info type
+    if system_info_type == 'cpu':
+        output = subprocess.check_output(['python3', 'script1.py'])
+    elif system_info_type == 'memory':
+        output = subprocess.check_output(['python3', 'script2.py'])
+    elif system_info_type == 'disk':
+        output = subprocess.check_output(['python3', 'script2.py'])
+    else:
+        return 'Invalid system info type'
+
+    return render_template('output.html', output=output.decode())
+
 # Define the logout route
 @app.route('/logout')
 def logout():
