@@ -45,16 +45,18 @@ def button2():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     # Run the button2 script here
-    output = subprocess.check_output(['python3', 'script2.py'])
+    output = subprocess.check_output(['sh', 'script2.sh'])
     return render_template('output.html', output=output.decode())
 
 # Define the button3 route
-@app.route('/button3')
+@app.route('/button3', methods=['POST'])
 def button3():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    # Run the button3 script here
-    output = subprocess.check_output(['python3', 'script3.py'])
+    # Get the input value from the form
+    input_value = request.form['password_length']
+    # Run the button3 script with the input value as a command line argument
+    output = subprocess.check_output(['python3', 'script3.py', input_value])
     return render_template('output.html', output=output.decode())
 # Define the logout route
 @app.route('/logout')
