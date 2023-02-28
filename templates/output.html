@@ -40,6 +40,7 @@
         color: #212529;
         padding: 10px;
         border-radius: 5px;
+        white-space: pre-wrap;
       }
     </style>
   </head>
@@ -54,7 +55,7 @@
           <div class="result-card card">
             <div class="card-body">
               <h2 class="card-title text-center">Result:</h2>
-              <pre>{{ output }}</pre>
+              <pre style="word-wrap: break-word">{{ output }}</pre>
               <div class="d-grid gap-2">
                 <a href="{{ url_for('home') }}" class="btn btn-primary">Back</a>
               </div>
