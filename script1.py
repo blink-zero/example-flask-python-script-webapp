@@ -9,6 +9,7 @@ import os
 import sys
 import re
 
+
 def check_permission():
     euid = os.geteuid()
     if euid != 0:
@@ -17,11 +18,13 @@ def check_permission():
         # the next line replaces the currently-running process with the sudo
         os.execlpe('sudo', *args)
 
+
 def sh(cmd, in_shell=False, get_str=True):
     output = subprocess.check_output(cmd, shell=in_shell)
     if get_str:
         return str(output, 'utf-8')
     return output
+
 
 class Hwinfo:
     @classmethod
@@ -67,7 +70,8 @@ class Hwinfo:
         """
         vendor = sh('cat /sys/devices/virtual/dmi/id/board_vendor', True)
         name = sh('cat /sys/devices/virtual/dmi/id/board_name', True)
-        chipset = sh('lspci | grep ISA | sed -e "s/.*: //" -e "s/LPC.*//" -e "s/Controller.*//"', True)
+        chipset = sh(
+            'lspci | grep ISA | sed -e "s/.*: //" -e "s/LPC.*//" -e "s/Controller.*//"', True)
         desc = vendor + name + chipset
         return Info('BaseBoard', desc.replace('\n', ' ', 2).strip())
 
@@ -79,11 +83,12 @@ class Hwinfo:
             Hwinfo.product(), Hwinfo.distro(), Hwinfo.kernel(),
             Hwinfo.processor(), Hwinfo.baseboard(), Rom(),
             Memory(), Disk(), OnboardDevice()
-            ]
+        ]
         self.info_list = infos
 
     def __str__(self):
         return ''.join([i.msg() for i in self.info_list])
+
 
 class Info:
     """
@@ -107,7 +112,7 @@ class Info:
         margin = ' ' * (Info.WIDTH - len(self.name))
         main_msg = '{0}{1}: {2}\n'.format(self.name, margin, self.desc)
         msg.append(main_msg)
-        sub_msg = [ self.indent_subInfo(i) for i in self.subInfo if i]
+        sub_msg = [self.indent_subInfo(i) for i in self.subInfo if i]
         if sub_msg:
             sub_msg[-1] = sub_msg[-1].replace('│', '└')
         return ''.join(msg + sub_msg)
@@ -119,12 +124,14 @@ class Info:
         return Info.INDENT + line
 
     def __str__(self):
-        return  '"name": {0}, "description": {1}'.format(self.name, self.desc)
+        return '"name": {0}, "description": {1}'.format(self.name, self.desc)
+
 
 class Rom(Info):
     def __init__(self):
         self.rom_list = self.roms()
         Info.__init__(self, 'Rom', self.getDesc() if self.rom_list else 'noop')
+
     def getDesc(self):
         roms = [self.transform(i) for i in self.rom_list]
         roms_msg = ['{0} {1}'.format(i['VENDOR'], i['MODEL']) for i in roms]
@@ -138,6 +145,7 @@ class Rom(Info):
                 if key in 'VENDOR' or key in 'MODEL':
                     rom[key] = value.replace('"', '').strip()
         return rom
+
     def roms(self):
         cmd = """lsblk -dP -o VENDOR,TYPE,MODEL | grep 'TYPE="rom"'"""
         try:
@@ -147,6 +155,7 @@ class Rom(Info):
         except Exception:
             # no rom
             return []
+
 
 class OnboardDevice(Info):
     def __init__(self):
@@ -163,7 +172,7 @@ class OnboardDevice(Info):
         splitter = ': '
         attrs = ['Reference Designation', 'Type']
         with subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                              bufsize = 1, universal_newlines = True) as p:
+                              bufsize=1, universal_newlines=True) as p:
             for i in p.stdout:
                 line = i.strip()
                 if not parsing and line == 'Onboard Device':
@@ -184,12 +193,14 @@ class OnboardDevice(Info):
         ret = '{0}: {1}\n'.format(tvalue, desvalue)
         return ret
 
+
 class Disk(Info):
     def __init__(self):
         self.disks = self.diskList()
-        Info.__init__(self, 'Disks', '{0} {1} GB Total'.format(' '.join(self.disks), self.countSize()))
+        Info.__init__(self, 'Disks', '{0} {1} GB Total'.format(
+            ' '.join(self.disks), self.countSize()))
         self.details = self.disksDetail(self.disks)
-        detail_strs = [ self.extractDiskDetail(i) for i in self.details]
+        detail_strs = [self.extractDiskDetail(i) for i in self.details]
         for i in detail_strs:
             self.addSubInfo(i)
 
@@ -200,6 +211,7 @@ class Disk(Info):
             output = sh(cmd, True)
             sum += int(output) // (10 ** 9)
         return sum
+
     def diskList(self):
         """
         find out how many disk in this machine
@@ -218,7 +230,7 @@ class Disk(Info):
                 new_cmd = cmd[:]
                 new_cmd.append(i)
                 with subprocess.Popen(new_cmd, stdout=subprocess.PIPE,
-                                      bufsize = 1, universal_newlines=True) as p:
+                                      bufsize=1, universal_newlines=True) as p:
                     for j in p.stdout:
                         line = j.strip()
                         if not parsing and 'START OF INFORMATION' in line:
@@ -256,7 +268,7 @@ class Memory(Info):
     def __init__(self):
         self.memory = self.memory()
         Info.__init__(self, 'Memory', self.getDesc(self.memory))
-        detail_strs = [ self.extractMemDetail(i) for i in self.memory]
+        detail_strs = [self.extractMemDetail(i) for i in self.memory]
         for i in detail_strs:
             self.addSubInfo(i)
 
@@ -267,7 +279,7 @@ class Memory(Info):
         attrs = ['Size', 'Type', 'Speed', 'Manufacturer', 'Locator']
         mem_list = []
         with subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                              bufsize = 1, universal_newlines = True) as p:
+                              bufsize=1, universal_newlines=True) as p:
             for i in p.stdout:
                 line = i.strip()
                 if not parsing and line == 'Memory Device':
@@ -305,11 +317,12 @@ class Memory(Info):
         return '{0} MB Total'.format(total)
 
     def convertMemSize(self, size_str):
-        (size, unit) = size_str.split(' ', 1);
+        (size, unit) = size_str.split(' ', 1)
         try:
             return int(size)
         except ValueError:
             return 0
+
 
 check_permission()
 print(Hwinfo())

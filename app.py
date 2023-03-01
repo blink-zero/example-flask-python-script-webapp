@@ -5,9 +5,12 @@ app = Flask(__name__)
 app.secret_key = 'my_secret_key'
 
 # Define the valid user IDs and passwords
-valid_users = {'admin': 'password123', 'user1': 'password456', 'user2': 'password789'}
+valid_users = {'admin': 'password123',
+               'user1': 'password456', 'user2': 'password789'}
 
 # Define the login route
+
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error = None
@@ -24,6 +27,8 @@ def login():
     return render_template('login.html', error=error)
 
 # Define the home route
+
+
 @app.route('/home')
 def home():
     if 'user_id' not in session:
@@ -31,6 +36,8 @@ def home():
     return render_template('home.html', user_id=session['user_id'])
 
 # Define the button1 route
+
+
 @app.route('/button1')
 def button1():
     if 'user_id' not in session:
@@ -40,6 +47,8 @@ def button1():
     return render_template('output.html', output=output.decode())
 
 # Define the button2 route
+
+
 @app.route('/button2')
 def button2():
     if 'user_id' not in session:
@@ -49,6 +58,8 @@ def button2():
     return render_template('output.html', output=output.decode())
 
 # Define the button3 route
+
+
 @app.route('/button3', methods=['POST'])
 def button3():
     if 'user_id' not in session:
@@ -60,6 +71,8 @@ def button3():
     return render_template('output.html', output=output.decode())
 
 # Define the button4 route
+
+
 @app.route('/button4', methods=['POST'])
 def button4():
     if 'user_id' not in session:
@@ -80,10 +93,13 @@ def button4():
     return render_template('output.html', output=output.decode())
 
 # Define the logout route
+
+
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
 
+
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
